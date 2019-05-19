@@ -1,6 +1,32 @@
 const EventEmitter = require('events').EventEmitter
 const LRU = require('lru-cache')
-const through = require('through2')
+const sizeof = require('object-sizeof')
+// const msgpack = require('msgpack5')()
+
+const deepClone = obj => {
+  if (typeof obj !== 'object' || obj === null) {
+    return obj
+  }
+
+  if (obj instanceof Date) {
+    return new Date(obj.getTime())
+  }
+
+  if (obj instanceof Array) {
+    return obj.reduce((arr, item, i) => {
+      arr[i] = deepClone(item)
+      return arr
+    }, [])
+  }
+
+  if (obj instanceof Object) {
+    return Object.keys(obj).reduce((newObj, key) => {
+      newObj[key] = deepClone(obj[key])
+      return newObj
+    }, {})
+  }
+}
+
 // V8 prefers predictable objects
 class CachePacket {
   constructor(ttl, data) {
@@ -12,13 +38,14 @@ class CachePacket {
   }
 }
 
-class UberCache extends EventEmitter {
+class Cache extends EventEmitter {
   constructor(options) {
     super()
     this.cache = new LRU({
       maxAge: 1000 * 60 * 60,
       max: 5000,
-      ...options
+      ...options,
+      length: (n, key) => sizeof(n.data)
     })
   }
 
@@ -29,8 +56,9 @@ class UberCache extends EventEmitter {
     }
 
     try {
-      const encoded = JSON.stringify(value)
-      this.cache.set(key, new CachePacket(ttl, encoded))
+      const clone = deepClone(value)
+      const packet = new CachePacket(ttl, clone)
+      this.cache.set(key, packet)
     } catch (e) {
       throw new TypeError('Unable to encode data')
     }
@@ -65,12 +93,7 @@ class UberCache extends EventEmitter {
       this.emit('miss', key)
       return undefined
     }
-
-    try {
-      value = JSON.parse(cachePacket.data)
-    } catch (err) {
-      throw new Error('Malformed cache data found')
-    }
+    value = deepClone(cachePacket.data)
 
     // If ttl has expired, delete
     if (cachePacket.ttl && cachePacket.ttl < Date.now()) {
@@ -96,12 +119,11 @@ class UberCache extends EventEmitter {
   }
 
   async count() {
-    return this.cache.length
+    return this.cache.itemCount
   }
 
   async size() {
-    throw new Error('TBC')
-    // return this.cache.length
+    return this.cache.length
   }
 
   async dump() {
@@ -109,4 +131,4 @@ class UberCache extends EventEmitter {
   }
 }
 
-module.exports = UberCache
+module.exports = Cache

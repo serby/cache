@@ -1,4 +1,4 @@
-# uber-cache-promise - Promise based in-memory cache that sets the interface for a number of uber-\*-promise caching engine: Memcached, Redis, MongoDB, LevelDB
+# cache - Promise based in-memory cache that sets the interface for a number of uber-\*-promise caching engine: Memcached, Redis, MongoDB, LevelDB
 
 [![build status](https://secure.travis-ci.org/serby/uber-cache.png)](http://travis-ci.org/serby/uber-cache)
 [![dependency status](https://david-dm.org/serby/uber-cache.svg)](https://david-dm.org/serby/uber-cache)

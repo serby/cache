@@ -17,8 +17,8 @@ module.exports = async (name, engineFactory) => {
   }
 
   const benches = {
-    'cache.set() with primitive data': async () => populateCachePrimitiveData(),
     'cache.set() with object data': async () => populateCacheComplexData(),
+    'cache.set() with primitive data': async () => populateCachePrimitiveData(),
     'cache.get() with empty cache': async start => {
       const cache = engineFactory()
       start()
@@ -54,6 +54,7 @@ module.exports = async (name, engineFactory) => {
   }
 
   console.log('Operation count: ' + count)
+  const startTotalTime = process.hrtime()
   for (let bench in benches) {
     let startTime = process.hrtime()
     const start = () => (startTime = process.hrtime())
@@ -61,4 +62,6 @@ module.exports = async (name, engineFactory) => {
     let endTime = process.hrtime(startTime)
     console.info(`%dms - ${bench}`, endTime[1] / 1000000)
   }
+  const endTotalTime = process.hrtime(startTotalTime)
+  console.info(`%dms - total`, endTotalTime[1] / 1000000)
 }

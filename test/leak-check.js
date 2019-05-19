@@ -1,5 +1,5 @@
-const UberCache = require('../uber-cache-promise')
-const cache = new UberCache()
+const Cache = require('../cache')
+const cache = new Cache()
 let last = process.memoryUsage().rss
 let current = process.memoryUsage().rss
 let i = 0

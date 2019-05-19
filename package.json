@@ -1,6 +1,6 @@
 {
   "author": "Paul Serby <paul@serby.net>",
-  "name": "uber-cache-promise",
+  "name": "cache",
   "description": "Promise based in-memory cache that sets the interface for a number of uber-*-promise caching engine: MongoDB, Memcached, Redis(TBC), LevelDB(TBC)",
   "version": "1.0.0",
   "publishConfig": {
@@ -13,14 +13,15 @@
     "ttl",
     "lru"
   ],
+  "scope": "@serby",
   "repository": {
     "type": "git",
-    "url": "git@github.com:serby/uber-cache-promise"
+    "url": "git@github.com:serby/cache"
   },
   "license": "ISC",
-  "main": "./uber-cache-promise.js",
+  "main": "./cache.js",
   "files": [
-    "./uber-cache-promise.js"
+    "./cache.js"
   ],
   "scripts": {
     "lint:js": "eslint . --cache --ext '.js'",
@@ -33,19 +34,21 @@
   },
   "dependencies": {
     "lru-cache": "^5.1.1",
+    "msgpack5": "^4.2.1",
+    "object-sizeof": "^1.3.1",
     "through2": "^3.0.1"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
-    "eslint-config-prettier": "^4.1.0",
+    "eslint-config-prettier": "^4.3.0",
     "eslint-config-prettier-standard": "^2.0.0",
     "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.16.0",
-    "eslint-plugin-node": "^8.0.1",
-    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-node": "^9.0.1",
+    "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
-    "jest": "^24.7.1",
-    "prettier": "^1.16.4"
+    "jest": "^24.8.0",
+    "prettier": "^1.17.1"
   }
 }

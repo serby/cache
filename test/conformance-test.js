@@ -22,7 +22,7 @@ module.exports = (name, engineFactory) => {
       it('should allow primitives to be set', async () => {
         const cache = engineFactory()
         await cache.set('key', 'hello')
-        const value = await cache.get('key', 'hello')
+        const value = await cache.get('key')
         assert.strictEqual(value, 'hello')
       })
 
@@ -55,6 +55,32 @@ module.exports = (name, engineFactory) => {
 
         const value = await cache.get('key')
         assert.strictEqual(value, undefined)
+      })
+
+      it('should not allow mutation by reference', async () => {
+        const cache = engineFactory()
+        const a = ['foo']
+        await cache.set('key', a)
+        a.push('bar')
+        const value = await cache.get('key')
+        assert.deepStrictEqual(value, ['foo'])
+      })
+
+      it.skip('should allow buffer to be set', async () => {
+        const cache = engineFactory()
+        await cache.set('a buffer', Buffer.from([0x01, 0x02, 0x03]))
+        const value = await cache.get('a buffer')
+        assert.deepStrictEqual(value, ['foo'])
+      })
+
+      it('should not allow functions', async () => {
+        const cache = engineFactory()
+        try {
+          await cache.set('function', f => f)
+        } catch (e) {
+          assert(e instanceof TypeError)
+          assert.strictEqual(e.message, 'Unable to encode data')
+        }
       })
 
       describe.skip('Streaming Interface', () => {
@@ -156,6 +182,25 @@ module.exports = (name, engineFactory) => {
         const cache = engineFactory()
         const value = await cache.get('undefined')
         assert.strictEqual(value, undefined, 'value should be undefined')
+      })
+
+      it('should ensure primitive types are returned', async () => {
+        const cache = engineFactory()
+        cache.set('bool', true)
+        assert.strictEqual(await cache.get('bool'), true)
+        cache.set('string', 'string')
+        assert.strictEqual(await cache.get('string'), 'string')
+        cache.set('number', 1)
+        assert.strictEqual(await cache.get('number'), 1)
+      })
+
+      it('should ensure Date is returned as a JavaScript Date', async () => {
+        const cache = engineFactory()
+        cache.set('my-birthday', new Date('1978-05-01 05:23:00'))
+        assert.deepStrictEqual(
+          await cache.get('my-birthday'),
+          new Date('1978-05-01 05:23:00')
+        )
       })
 
       it('should emit a "stale" on an expired cache', async done => {
@@ -313,6 +358,12 @@ module.exports = (name, engineFactory) => {
         await cache.clear()
         assert.strictEqual(await cache.size(), 0)
       })
+    })
+  })
+  describe('#dump()', () => {
+    it('should be empty to start with', async () => {
+      const cache = engineFactory()
+      assert.deepStrictEqual(await cache.dump(), [])
     })
   })
 }
